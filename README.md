@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/bdatdo0601/akazam.svg?branch=master)](https://travis-ci.org/bdatdo0601/akazam)
 [![dependencies Status](https://david-dm.org/bdatdo0601/akazam/status.svg)](https://david-dm.org/bdatdo0601/akazam)
 [![devDependencies Status](https://david-dm.org/bdatdo0601/akazam/dev-status.svg)](https://david-dm.org/bdatdo0601/akazam?type=dev)
+[![Inline docs](http://inch-ci.org/github/bdatdo0601/akazam.svg?branch=master)](http://inch-ci.org/github/bdatdo0601/akazam)
 
 Informational Database
 
