@@ -1,0 +1,20 @@
+strict digraph BaseDiagram{
+    label="Base Graph"
+    Event -> SocialAccount [label=" 0/many"];
+    Person -> Person [label=" 0/many"];
+    Budget -> MoneyRecord [label=" 0/many"];
+    Event -> Person [dir="both" label=" 0/many"];
+    MoneyRecord -> Event [label=" 0/1"];
+    Event -> MoneyRecord [label=" 0/many"];
+    Person -> Location [label=" 0/many"];
+    Event -> Thing [lable=" 0/many"];
+    Event -> Location [label=" 0/1"];
+    Person -> SocialAccount [label=" 0/many"];
+    Project -> MoneyRecord [label=" 0/many"];
+    MoneyRecord -> Project [label=" 0/1"];
+    Todo -> Location [label=" 0/1"];
+    Todo -> Thing [label=" 0/many"];
+    Thing -> MoneyRecord [label=" 0/1"];
+    Wishlist -> Thing [label=" 0/many"];
+    Project -> Person [label=" 1"];
+}

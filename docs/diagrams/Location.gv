@@ -1,0 +1,12 @@
+strict graph Location {
+    label="Location"
+    Location -- locationID
+    Location -- name
+    Location -- address
+    Location -- "(zipcode)"
+    Location -- "(state)"
+    Location -- "(city)"
+    Location -- "(country)"
+    Location -- lat
+    Location -- long
+}

@@ -10,7 +10,8 @@
     "scripts": {
         "start": "babel-node src/index.js",
         "start-watch": "nodemon src/index.js --exec babel-node",
-        "test": "mocha --recursive --require @babel/register"
+        "test": "nyc --reporter=html --reporter=text --per-file mocha --recursive --require @babel/register",
+        "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "devDependencies": {
         "@babel/core": "^7.1.0",
@@ -19,11 +20,13 @@
         "babel-eslint": "^9.0.0",
         "babel-preset-env": "^1.7.0",
         "chai": "^4.1.2",
+        "coveralls": "^3.0.2",
         "eslint": "^5.6.0",
         "eslint-config-prettier": "^3.0.1",
         "eslint-plugin-prettier": "^2.6.2",
         "mocha": "^5.2.0",
         "nodemon": "^1.18.4",
+        "nyc": "^13.0.1",
         "prettier": "^1.14.3"
     },
     "dependencies": {

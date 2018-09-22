@@ -1,0 +1,9 @@
+strict graph SocialAccount {
+    label="SocialAccount";
+    SocialAccount -- socialAccountID
+    SocialAccount -- type
+    type -- socialAccountTypeID
+    type -- socialAccountTypeName
+    type -- "(link)"
+    SocialAccount -- username
+}

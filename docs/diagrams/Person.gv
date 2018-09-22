@@ -1,0 +1,17 @@
+strict graph Person {
+    label="Person"
+    Person -- personID
+    Person -- name
+    name -- firstName
+    name -- "(middleName)"
+    name -- "(lastName)"
+    Person -- "[nickname]"
+    Person -- "[eventIDs]"
+    Person -- "(BaseLocation)"
+    Person -- "[Connections]"
+    "[Connections]" -- connectionID
+    "[Connections]" -- partnerID
+    "[Connections]" -- connectionType
+    connectionType -- connectionTypeID
+    connectionType -- connectionName
+}

@@ -68,7 +68,7 @@ describe("Communication with database connection", async () => {
             });
         });
 
-        it("retrieve data from database", done => {
+        it("retrieves data from database", done => {
             TestModel.find({ foo: "bar" }, (err, result) => {
                 if (err) throw err;
                 if (result.length === 0) throw new Error("Should be able to retrieve data");
