@@ -57,5 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# coveralls yml file
+.coveralls.yml
+
 # next.js build output
 .next
