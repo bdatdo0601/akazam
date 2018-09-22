@@ -11,7 +11,7 @@
         "start": "babel-node src/index.js",
         "start-watch": "nodemon src/index.js --exec babel-node",
         "test": "nyc --reporter=html --reporter=text --per-file mocha --recursive --require @babel/register",
-        "coverage": "nyc report --reporter=text-lcov | coveralls"
+        "coveralls": "nyc report --reporter=text-lcov | coveralls"
     },
     "devDependencies": {
         "@babel/core": "^7.1.0",
