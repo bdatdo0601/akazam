@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import chai, { expect } from "chai";
+import { expect } from "chai";
 import initDB from "../../src/db";
-import { Test } from "mocha";
 
 require("dotenv").config();
 
@@ -23,63 +22,65 @@ const TestModel = mongoose.model("Test", TestSchema);
 
 let mgoose = null;
 
-describe("Establishing connection with test database", () => {
-    it("should throw error if input is invalid", done => {
-        mgoose = initDB()
-            .then(() => {
-                throw new Error("Invalid input should not create connection");
-            })
-            .catch(() => {
+describe("Database General Functionality", () => {
+    describe("Establishing connection with test database", () => {
+        it("should throw error if input is invalid", done => {
+            mgoose = initDB()
+                .then(() => {
+                    done(new Error("Invalid input should not create connection"));
+                })
+                .catch(() => {
+                    done();
+                });
+        });
+
+        it("should established a native mongoose connection object if input is valid", async () => {
+            mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
+            expect(mgoose).to.not.be.null;
+        });
+
+        after(done => {
+            if (mgoose) {
+                mgoose.connection.close(done);
+            } else {
                 done();
-            });
-    });
-
-    it("should established a native mongoose connection object if input is valid", async () => {
-        mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
-        expect(mgoose).to.not.be.null;
-    });
-
-    after(done => {
-        if (mgoose) {
-            mgoose.connection.close(done);
-        } else {
-            done();
-        }
-    });
-});
-
-describe("Communication with database connection", async () => {
-    before(async () => {
-        mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
-        mgoose.connection.db.dropDatabase();
-    });
-
-    describe("Interact with database", () => {
-        it("new test document with foo value of bar", done => {
-            const testDoc = new TestModel({ foo: "bar" });
-            testDoc.save(done);
-        });
-
-        it("does not save incorrect format to database", done => {
-            const incorrectTestDoc = new TestModel({ foz: "baz" });
-            incorrectTestDoc.save(err => {
-                if (err) return done();
-                throw new Error("Incorrect format should not be stored");
-            });
-        });
-
-        it("retrieves data from database", done => {
-            TestModel.find({ foo: "bar" }, (err, result) => {
-                if (err) throw err;
-                if (result.length === 0) throw new Error("Should be able to retrieve data");
-                done();
-            });
+            }
         });
     });
 
-    after(done => {
-        mgoose.connection.db.dropDatabase(() => {
-            mgoose.connection.close(done);
+    describe("Communication with database connection", async () => {
+        before(async () => {
+            mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
+            mgoose.connection.db.dropDatabase();
+        });
+
+        describe("Interact with database", () => {
+            it("new test document with foo value of bar", done => {
+                const testDoc = new TestModel({ foo: "bar" });
+                testDoc.save(done);
+            });
+
+            it("does not save incorrect format to database", done => {
+                const incorrectTestDoc = new TestModel({ foz: "baz" });
+                incorrectTestDoc.save(err => {
+                    if (err) return done();
+                    done(new Error("Incorrect format should not be stored"));
+                });
+            });
+
+            it("retrieves data from database", done => {
+                TestModel.find({ foo: "bar" }, (err, result) => {
+                    if (err) throw done(err);
+                    if (result.length === 0) done(new Error("Should be able to retrieve data"));
+                    done();
+                });
+            });
+        });
+
+        after(done => {
+            mgoose.connection.db.dropDatabase(() => {
+                mgoose.connection.close(done);
+            });
         });
     });
 });

@@ -7,6 +7,6 @@ strict graph Location {
     Location -- "(state)"
     Location -- "(city)"
     Location -- "(country)"
-    Location -- lat
-    Location -- long
+    Location -- "(lat)"
+    Location -- "(long)"
 }
