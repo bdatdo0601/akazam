@@ -5,6 +5,8 @@
  */
 require("dotenv").config();
 
+const debug = require("debug")("Akazam:Main");
+
 import initDB from "./db";
 
 const env = process.env;
@@ -19,8 +21,9 @@ const MONGOOSE_OPTS = {
 
 const main = async () => {
     const db = await initDB(DB_URI, MONGOOSE_OPTS);
+    debug("DB Connection Established");
 };
 
 main().catch(error => {
-    console.error(error);
+    debug(error);
 });

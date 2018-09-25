@@ -1,6 +1,8 @@
 import mongoose, { Schema, Model } from "mongoose";
 import addressParser from "parse-address";
 
+const debug = require("debug")("Akazam:Location");
+
 const locationSchema = new Schema({
     name: {
         type: String,
@@ -38,7 +40,7 @@ class Location extends Model {
             callback();
             return newLocationDocument;
         } catch (error) {
-            console.error(error);
+            debug(error);
             throw new Error("cannot create new location");
         }
     }
