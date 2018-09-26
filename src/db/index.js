@@ -5,6 +5,14 @@
  */
 import mongoose from "mongoose";
 
+/**
+ * Database Initialization function
+ *
+ * return a mongoose instance that is connected to specified URI
+ *
+ * @param {*} uri MongoDB URI endpoint to connect to
+ * @param {*} options MongoDB configuration
+ */
 const initDB = async (uri, options) => {
     try {
         const mgoose = await mongoose.connect(

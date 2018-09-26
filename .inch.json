@@ -1,0 +1,5 @@
+{
+    "files": {
+        "excluded": ["test/**/*.js"]
+    }
+}
