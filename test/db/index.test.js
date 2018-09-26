@@ -63,16 +63,16 @@ describe("Database General Functionality", () => {
             it("does not save incorrect format to database", done => {
                 const incorrectTestDoc = new TestModel({ foz: "baz" });
                 incorrectTestDoc.save(err => {
-                    if (err) return done();
-                    done(new Error("Incorrect format should not be stored"));
+                    if (err) done();
+                    else done(new Error("Incorrect format should not be stored"));
                 });
             });
 
             it("retrieves data from database", done => {
                 TestModel.find({ foo: "bar" }, (err, result) => {
-                    if (err) throw done(err);
-                    if (result.length === 0) done(new Error("Should be able to retrieve data"));
-                    done();
+                    if (err) done(err);
+                    else if (result.length === 0) done(new Error("Should be able to retrieve data"));
+                    else done();
                 });
             });
         });
