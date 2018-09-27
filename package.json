@@ -15,9 +15,14 @@
         "start": "DEBUG=Akazam:* babel-node src/index.js",
         "start-watch": "DEBUG=Akazam:* nodemon src/index.js --exec babel-node",
         "test": "nyc --reporter=html --reporter=text --per-file mocha --recursive --require @babel/register",
-        "coveralls": "nyc report --reporter=text-lcov | coveralls"
+        "coveralls": "nyc report --reporter=text-lcov | coveralls",
+        "clean": "rm -rf build && mkdir build",
+        "build-server": "babel -d ./build ./src -s --copy-files",
+        "build": "yarn clean && yarn build-server",
+        "start-production": "NODE_ENV=production node ./build/index.js"
     },
     "devDependencies": {
+        "@babel/cli": "^7.1.0",
         "@babel/core": "^7.1.0",
         "@babel/node": "^7.0.0",
         "@babel/plugin-proposal-class-properties": "^7.1.0",

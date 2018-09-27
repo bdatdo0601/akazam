@@ -78,9 +78,7 @@ describe("Database General Functionality", () => {
         });
 
         after(done => {
-            mgoose.connection.db.dropDatabase(() => {
-                mgoose.connection.close(done);
-            });
+            mgoose.connection.close(done);
         });
     });
 });

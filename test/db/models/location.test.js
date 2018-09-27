@@ -370,8 +370,6 @@ describe("Location Model Test", () => {
         });
     });
     after(done => {
-        mgoose.connection.db.dropDatabase(() => {
-            mgoose.connection.close(done);
-        });
+        mgoose.connection.close(done);
     });
 });
