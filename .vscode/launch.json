@@ -7,8 +7,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/src/index.js"
+            "name": "Launch Application in Debug mode",
+            "program": "${workspaceFolder}/src/index.js",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/babel-node",
+            "env": {
+                "DEBUG": "Akazam:*"
+            }
         }
     ]
 }
