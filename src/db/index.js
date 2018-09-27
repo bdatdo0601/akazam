@@ -5,6 +5,8 @@
  */
 import mongoose from "mongoose";
 
+const debug = require("debug")("Akazam:DBMain");
+
 /**
  * Database Initialization function
  *
@@ -21,6 +23,7 @@ const initDB = async (uri, options) => {
         );
         return mgoose;
     } catch (err) {
+        debug(err);
         throw new Error("Unable to establish connection");
     }
 };
