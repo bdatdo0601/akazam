@@ -51,7 +51,6 @@ describe("Database General Functionality", () => {
     describe("Communication with database connection", async () => {
         before(async () => {
             mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
-            mgoose.connection.db.dropDatabase();
         });
 
         describe("Interact with database", () => {
@@ -78,7 +77,9 @@ describe("Database General Functionality", () => {
         });
 
         after(done => {
-            mgoose.connection.close(done);
+            mgoose.connection.db.dropDatabase(() => {
+                mgoose.connection.close(done);
+            });
         });
     });
 });
