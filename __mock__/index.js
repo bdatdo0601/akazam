@@ -4,7 +4,7 @@ import fs from "fs";
 
 const DATA_AMOUNT = 10;
 
-const schemas = [{ name: "Location", schema: "__mock__/schema/location.json" }];
+const schemas = [{ name: "location", schema: "__mock__/schema/location.json" }];
 
 jsf.extend("faker", () => faker);
 

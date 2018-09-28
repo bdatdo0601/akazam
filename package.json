@@ -8,11 +8,12 @@
     "license": "MIT",
     "private": false,
     "pre-commit": [
+        "generate-mock",
         "test",
         "coveralls"
     ],
     "scripts": {
-        "generate-mock": "babel-node __mock__/mockDataGenerator.js",
+        "generate-mock": "babel-node __mock__/index.js",
         "start": "DEBUG=Akazam:* babel-node src/index.js",
         "start-watch": "DEBUG=Akazam:* nodemon src/index.js --exec babel-node",
         "test": "nyc --reporter=html --reporter=text --per-file mocha --recursive --require @babel/register",
