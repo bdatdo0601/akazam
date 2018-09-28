@@ -27,6 +27,7 @@ Informational Database for Personal Life
 
 <!-- -   `yarn init-db`: initialize the local database (**NOTE: all data in local database will be loss once executed**) -->
 
+-   `yarn generate-mock`: Create mock data
 -   `yarn start`: start the development version (with development variables) of the API
 -   `yarn start-watch`: start development version with nodemon, will auto restart on file changes
 -   `yarn test`: Unit testing the API

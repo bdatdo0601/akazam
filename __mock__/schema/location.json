@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "address": {
+            "type": "string",
+            "faker": "address.streetAddress"
+        },
+        "zipCode": {
+            "type": "string",
+            "faker": "address.zipCode"
+        },
+        "state": {
+            "type": "string",
+            "faker": "address.countryCode"
+        },
+        "city": {
+            "type": "string",
+            "faker": "address.city"
+        },
+        "country": {
+            "type": "string",
+            "faker": "address.country"
+        },
+        "lat": {
+            "type": "number",
+            "faker": "address.latitude"
+        },
+        "long": {
+            "type": "number",
+            "faker": "address.longitude"
+        }
+    },
+    "required": ["name", "address", "city", "zipCode", "country", "state", "lat", "long"]
+}

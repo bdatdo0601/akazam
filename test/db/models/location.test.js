@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import initDB from "../../../src/db";
 import Location from "../../../src/db/models/location";
+import mockLocationData from "../../../__mock__/data/location.json";
 
 require("dotenv").config();
 
@@ -20,6 +21,12 @@ describe("Location Model Test", () => {
     before(async () => {
         mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
     });
+
+    const validMockData = mockLocationData.location.map((item, index) => ({
+        name: `mock data ${index}`,
+        input: item,
+        expected: item,
+    }));
 
     const validTestData = [
         {
@@ -148,6 +155,21 @@ describe("Location Model Test", () => {
     ];
 
     describe("Creating New Data", () => {
+        describe("Insert to database with mock data", () => {
+            validMockData.forEach(testCase => {
+                it(`should insert to database with ${testCase.name}`, async () => {
+                    try {
+                        const newLocation = await Location.createNewLocation(testCase.input);
+                        expect(newLocation).to.not.be.null;
+                        Object.keys(testCase.expected).forEach(key => {
+                            expect(newLocation[key]).to.equal(testCase.expected[key]);
+                        });
+                    } catch (error) {
+                        expect(error).to.not.be.null;
+                    }
+                });
+            });
+        });
         describe("Insert to database with valid data", () => {
             validTestData.forEach(testCase => {
                 it(`should insert to database with ${testCase.name}`, async () => {
@@ -204,8 +226,21 @@ describe("Location Model Test", () => {
     });
     describe("Reading Stored Data", () => {
         describe("Retriving Existing Data", () => {
+            validMockData.forEach(testCase => {
+                it(`should return data with ${testCase.name}`, async () => {
+                    try {
+                        const location = await Location.getLocationFromName(testCase.input.name);
+                        expect(location).to.not.be.null;
+                        Object.keys(testCase.expected).forEach(key => {
+                            expect(location[key]).to.equal(testCase.expected[key]);
+                        });
+                    } catch (error) {
+                        expect(error).to.be.null;
+                    }
+                });
+            });
             validTestData.forEach(testCase => {
-                it(`should return data if with ${testCase.name}`, async () => {
+                it(`should return data with ${testCase.name}`, async () => {
                     try {
                         const location = await Location.getLocationFromName(testCase.input.name);
                         expect(location).to.not.be.null;
