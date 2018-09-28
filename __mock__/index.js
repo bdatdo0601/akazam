@@ -1,6 +1,8 @@
 import jsf from "json-schema-faker";
 import faker from "faker";
 import fs from "fs";
+import mkdirp from "mkdirp";
+import path from "path";
 
 const DATA_AMOUNT = 10;
 
@@ -30,11 +32,19 @@ const createMockData = async () => {
     return result;
 };
 
+const writeFile = (p, contents, cb) => {
+    mkdirp(path.dirname(p), function(err) {
+        if (err) return cb(err);
+
+        fs.writeFile(p, contents, cb);
+    });
+};
+
 createMockData().then(data => {
     Object.keys(data).forEach(key => {
         const jsonToWrite = {};
         jsonToWrite[key] = data[key];
-        fs.writeFile(`__mock__/data/${key}.json`, JSON.stringify(jsonToWrite, null, 4), err => {
+        writeFile(`__mock__/data/${key}.json`, JSON.stringify(jsonToWrite, null, 4), err => {
             if (err) {
                 console.error(err);
                 throw new Error("Cannot write file");
