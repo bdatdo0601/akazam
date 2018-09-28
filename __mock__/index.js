@@ -21,7 +21,7 @@ const generateMockDataFromSchema = async (schema, amount) => {
     return data;
 };
 
-export const createMockData = async () => {
+const createMockData = async () => {
     const result = {};
     for (const schema of schemas) {
         const data = await generateMockDataFromSchema(schema.schema, DATA_AMOUNT);
