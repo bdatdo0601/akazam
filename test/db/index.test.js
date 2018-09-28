@@ -6,9 +6,9 @@ require("dotenv").config();
 
 const env = process.env;
 
-const DB_TEST_URI = `mongodb://${env.DB_TEST_USER}:${env.DB_TEST_PASS}@${env.DB_TEST_HOSTNAME}:${env.DB_TEST_PORT}/${
-    env.DB_TEST_NAME
-}`;
+const DB_TEST_URI = `mongodb://${env.DB_TEST_USER === "" ? "" : `${env.DB_TEST_USER}:${env.DB_TEST_PASS}@`}${
+    env.DB_TEST_HOSTNAME
+}:${env.DB_TEST_PORT}/${env.DB_TEST_NAME}`;
 
 const MONGOOSE_TEST_OPTS = {
     useNewUrlParser: true,
