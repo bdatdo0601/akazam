@@ -17,4 +17,5 @@ strict digraph BaseDiagram{
     Thing -> MoneyRecord [label=" 0/1"];
     Wishlist -> Thing [label=" 0/many"];
     Project -> Person [label=" 1"];
+    Budget -> Person [label=" 1"];
 }
