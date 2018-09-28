@@ -1,4 +1,4 @@
-import { expect, assert } from "chai";
+import { expect } from "chai";
 import initDB from "../../../src/db";
 import Location from "../../../src/db/models/location";
 
