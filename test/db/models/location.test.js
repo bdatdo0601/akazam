@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import initDB from "../../../src/db";
 import Location from "../../../src/db/models/location";
-import mockLocationData from "../../../__mock__/data/Location.json";
+import mockLocationData from "../../../__mock__/data/location.json";
 
 require("dotenv").config();
 
