@@ -158,15 +158,11 @@ describe("Location Model Test", () => {
         describe("Insert to database with mock data", () => {
             validMockData.forEach(testCase => {
                 it(`should insert to database with ${testCase.name}`, async () => {
-                    try {
-                        const newLocation = await Location.createNewLocation(testCase.input);
-                        expect(newLocation).to.not.be.null;
-                        Object.keys(testCase.expected).forEach(key => {
-                            expect(newLocation[key]).to.equal(testCase.expected[key]);
-                        });
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+                    const newLocation = await Location.createNewLocation(testCase.input);
+                    expect(newLocation).to.not.be.null;
+                    Object.keys(testCase.expected).forEach(key => {
+                        expect(newLocation[key]).to.equal(testCase.expected[key]);
+                    });
                 });
             });
         });
@@ -180,7 +176,7 @@ describe("Location Model Test", () => {
                             expect(newLocation[key]).to.equal(testCase.expected[key]);
                         });
                     } catch (error) {
-                        expect(error).to.not.be.null;
+                        expect(error).to.be.null;
                     }
                 });
             });
@@ -369,6 +365,16 @@ describe("Location Model Test", () => {
     });
     describe("Deleting Data", () => {
         describe("Delete existing data", () => {
+            validMockData.forEach(testCase => {
+                it(`should return true with ${testCase.name}`, async () => {
+                    try {
+                        const isDeleted = await Location.deleteLocationByName(testCase.input.name);
+                        expect(isDeleted).to.be.true;
+                    } catch (error) {
+                        expect(error).to.be.null;
+                    }
+                });
+            });
             validTestData.forEach(testCase => {
                 it(`should return true with ${testCase.name}`, async () => {
                     try {

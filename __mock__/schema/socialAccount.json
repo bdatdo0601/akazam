@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "type": "object",
+    "properties": {
+        "username": {
+            "type": "string"
+        },
+        "socialAccountType": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "enum": ["twiiter", "discord", "facebook"]
+                }
+            },
+            "required": ["name"]
+        }
+    },
+    "required": ["socialAccountType", "username"]
+}
