@@ -8,12 +8,12 @@
         "socialAccountType": {
             "type": "object",
             "properties": {
-                "name": {
+                "socialAccountTypeName": {
                     "type": "string",
                     "enum": ["twiiter", "discord", "facebook"]
                 }
             },
-            "required": ["name"]
+            "required": ["socialAccountTypeName"]
         }
     },
     "required": ["socialAccountType", "username"]
