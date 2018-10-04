@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
-import initDB from "../../../src/db";
+import initDB, { ERROR_MESSAGES } from "../../../src/db";
 import _ from "lodash";
-import SocialAccount, { SocialAccountType } from "../../../src/db/models/socialAccount";
+import SocialAccount, { SocialAccountType, SOCIAL_ACCOUNT_ERROR_MESSAGES } from "../../../src/db/models/socialAccount";
 import mockSocialAccountData from "../../../__mock__/data/socialAccount.json";
 
 chai.use(require("chai-like"));
@@ -81,15 +81,8 @@ describe("Social Account Model Test", () => {
                     describe("Not allowing update existing", () => {
                         validSocialAccountTypeData.forEach((testCase, index) => {
                             it(`should return existing data with existing data ${index}`, async () => {
-                                try {
-                                    const newSocialAccountType = await SocialAccountType.createNew(
-                                        testCase.input,
-                                        false
-                                    );
-                                    expect(newSocialAccountType).to.be.null;
-                                } catch (error) {
-                                    expect(error).to.not.be.null;
-                                }
+                                const newSocialAccountType = await SocialAccountType.createNew(testCase.input, false);
+                                expect(newSocialAccountType).to.be.like(testCase.input);
                             });
                         });
                     });
@@ -97,10 +90,7 @@ describe("Social Account Model Test", () => {
                         validSocialAccountTypeData.forEach((testCase, index) => {
                             it(`should return updated document with valid data ${index}`, async () => {
                                 const newSocialAccountType = await SocialAccountType.createNew(testCase.input, true);
-                                expect(newSocialAccountType).to.not.be.null;
-                                Object.keys(testCase.expected).forEach(key => {
-                                    expect(newSocialAccountType[key]).to.equal(testCase.expected[key]);
-                                });
+                                expect(newSocialAccountType).to.be.like(testCase.expected);
                             });
                         });
                     });
@@ -108,13 +98,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Insert with invalid data", () => {
                 invalidSocialAccountTypeData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const newSocialAccountType = await SocialAccountType.createNew(testCase.input);
-                            expect(newSocialAccountType).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                    it(`should throw insert error with invalid data ${index}`, async () => {
+                        await expect(SocialAccountType.createNew(testCase.input)).to.eventually.be.rejectedWith(
+                            ERROR_MESSAGES.GENERAL.INSERT_ERROR
+                        );
                     });
                 });
             });
@@ -127,10 +114,7 @@ describe("Social Account Model Test", () => {
                             const socialAccountType = await SocialAccountType.getSocialAccountTypeByName(
                                 testCase.input.socialAccountTypeName
                             );
-                            expect(socialAccountType).to.not.be.null;
-                            Object.keys(testCase.expected).forEach(key => {
-                                expect(socialAccountType[key]).to.equal(testCase.expected[key]);
-                            });
+                            expect(socialAccountType).to.be.like(testCase.expected);
                         });
                     });
                 });
@@ -140,10 +124,7 @@ describe("Social Account Model Test", () => {
                             const socialAccountType = await SocialAccountType.getSocialAccountTypeByName(
                                 testCase.input.socialAccountTypeName
                             );
-                            expect(socialAccountType).to.not.be.null;
-                            Object.keys(testCase.expected).forEach(key => {
-                                expect(socialAccountType[key]).to.equal(testCase.expected[key]);
-                            });
+                            expect(socialAccountType).to.be.like(testCase.expected);
                         });
                     });
                 });
@@ -162,15 +143,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Read invalid inputs", () => {
                 invalidSocialAccountTypeData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const socialAccountType = await SocialAccountType.getSocialAccountTypeByName(
-                                testCase.input.socialAccountTypeName
-                            );
-                            expect(socialAccountType).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                    it(`should throw a read error with invalid data ${index}`, async () => {
+                        await expect(
+                            SocialAccountType.getSocialAccountTypeByName(testCase.input.socialAccountTypeName)
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.READ_ERROR);
                     });
                 });
             });
@@ -184,26 +160,19 @@ describe("Social Account Model Test", () => {
                                 testCase.input.socialAccountTypeName,
                                 testCase.edit
                             );
-                            expect(updatedSocialAccountType).to.not.be.null;
-                            Object.keys(testCase.expectedAfterEdit).forEach(key => {
-                                expect(updatedSocialAccountType[key]).to.equal(testCase.expectedAfterEdit[key]);
-                            });
+                            expect(updatedSocialAccountType).to.be.like(testCase.expectedAfterEdit);
                         });
                     });
                 });
                 describe("Edit non-existing data", () => {
                     describe("Not-allowing insertion", () => {
                         nonExistingSocialAccountTypeToNotBeInsertedData.forEach((testCase, index) => {
-                            it(`should throw error with non-existing data to not be inserted ${index}`, async () => {
-                                try {
-                                    const updatedSocialAccountType = await SocialAccountType.updateSocialAccountTypeByName(
-                                        testCase.input.socialAccountTypeName,
-                                        testCase.input
-                                    );
-                                    expect(updatedSocialAccountType).to.be.null;
-                                } catch (error) {
-                                    expect(error).to.not.be.null;
-                                }
+                            it(`should return null with non-existing data to not be inserted ${index}`, async () => {
+                                const updatedSocialAccountType = await SocialAccountType.updateSocialAccountTypeByName(
+                                    testCase.input.socialAccountTypeName,
+                                    testCase.input
+                                );
+                                expect(updatedSocialAccountType).to.be.null;
                             });
                         });
                     });
@@ -215,10 +184,7 @@ describe("Social Account Model Test", () => {
                                     testCase.input,
                                     true
                                 );
-                                expect(newSocialAccountType).to.not.be.null;
-                                Object.keys(testCase.input).forEach(key => {
-                                    expect(newSocialAccountType[key]).to.equal(testCase.input[key]);
-                                });
+                                expect(newSocialAccountType).to.be.like(testCase.input);
                             });
                         });
                     });
@@ -226,16 +192,13 @@ describe("Social Account Model Test", () => {
             });
             describe("Edit invalid inputs", () => {
                 invalidSocialAccountTypeData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const newSocialAccountType = await SocialAccountType.updateSocialAccountTypeByName(
+                    it(`should throw an updating error with invalid data ${index}`, async () => {
+                        await expect(
+                            SocialAccountType.updateSocialAccountTypeByName(
                                 testCase.input.socialAccountTypeName,
                                 testCase.input
-                            );
-                            expect(newSocialAccountType).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                            )
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.UPDATE_ERROR);
                     });
                 });
             });
@@ -276,14 +239,9 @@ describe("Social Account Model Test", () => {
             describe("Delete invalid inputs", () => {
                 invalidSocialAccountTypeData.forEach((testCase, index) => {
                     it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const isDeleted = await SocialAccountType.deleteSocialAccountTypeByName(
-                                testCase.input.socialAccountTypeName
-                            );
-                            expect(isDeleted).to.be.false;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                        await expect(
+                            SocialAccountType.deleteSocialAccountTypeByName(testCase.input.socialAccountTypeName)
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.DELETE_ERROR);
                     });
                 });
             });
@@ -406,7 +364,7 @@ describe("Social Account Model Test", () => {
 
     describe("Social Account Schema", () => {
         before(async () => {
-            // add social account type
+            // add mock social account type
             await validMockSocialAccountTypeData.forEach(async data => {
                 await SocialAccountType.createNew(data.input);
             });
@@ -450,13 +408,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Insert with invalid data", () => {
                 invalidSocialAccountData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const newSocialAccount = await SocialAccount.createNew(testCase.input);
-                            expect(newSocialAccount).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                    it(`should throw an insert error with invalid data ${index}`, async () => {
+                        await expect(SocialAccount.createNew(testCase.input)).to.eventually.be.rejectedWith(
+                            ERROR_MESSAGES.GENERAL.INSERT_ERROR
+                        );
                     });
                 });
             });
@@ -498,10 +453,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Read invalid inputs", () => {
                 invalidSocialAccountData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
+                    it(`should throw a read error with invalid data ${index}`, async () => {
                         await expect(
                             SocialAccount.getSocialAccountByUsername(testCase.input.username)
-                        ).to.eventually.be.rejectedWith("Could not retrieving process");
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.READ_ERROR);
                     });
                 });
             });
@@ -522,16 +477,12 @@ describe("Social Account Model Test", () => {
                 describe("Edit non-existing data", () => {
                     describe("Not-allowing insertion", () => {
                         nonExistingSocialAccountToNotBeInsertedData.forEach((testCase, index) => {
-                            it(`should throw error with non-existing data to not be inserted ${index}`, async () => {
-                                try {
-                                    const updatedSocialAccount = await SocialAccount.updateSocialAccountByUsername(
-                                        testCase.input.username,
-                                        testCase.input
-                                    );
-                                    expect(updatedSocialAccount).to.be.null;
-                                } catch (error) {
-                                    expect(error).to.not.be.null;
-                                }
+                            it(`should return null with non-existing data to not be inserted ${index}`, async () => {
+                                const updatedSocialAccount = await SocialAccount.updateSocialAccountByUsername(
+                                    testCase.input.username,
+                                    testCase.input
+                                );
+                                expect(updatedSocialAccount).to.be.null;
                             });
                         });
                     });
@@ -551,16 +502,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Edit invalid inputs", () => {
                 invalidSocialAccountData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const newSocialAccount = await SocialAccount.updateSocialAccountByUsername(
-                                testCase.input.username,
-                                testCase.input
-                            );
-                            expect(newSocialAccount).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                    it(`should throw an update error with invalid data ${index}`, async () => {
+                        await expect(
+                            SocialAccount.updateSocialAccountByUsername(testCase.input.username, testCase.input)
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.UPDATE_ERROR);
                     });
                 });
             });
@@ -600,15 +545,10 @@ describe("Social Account Model Test", () => {
             });
             describe("Delete invalid inputs", () => {
                 invalidSocialAccountData.forEach((testCase, index) => {
-                    it(`should throw an error with invalid data ${index}`, async () => {
-                        try {
-                            const isDeleted = await SocialAccount.deleteSocialAccountByUsername(
-                                testCase.input.username
-                            );
-                            expect(isDeleted).to.be.false;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                    it(`should throw a deletion error with invalid data ${index}`, async () => {
+                        await expect(
+                            SocialAccount.deleteSocialAccountByUsername(testCase.input.username)
+                        ).to.eventually.be.rejectedWith(ERROR_MESSAGES.GENERAL.DELETE_ERROR);
                     });
                 });
             });

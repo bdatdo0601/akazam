@@ -7,12 +7,17 @@
  * This will help put a person into all their social account
  */
 import mongoose, { Schema, Model } from "mongoose";
+import { ERROR_MESSAGES } from "../index";
 
 const debug = require("debug")("Akazam:SocialAccount");
 
 export const SOCIAL_ACCOUNT_ERROR_MESSAGES = Object.freeze({
-    SOCIAL_ACCOUNT: {},
-    SOCIAL_ACCOUNT_TYPE: {},
+    SOCIAL_ACCOUNT: {
+        NEED_USERNAME: "Username is required",
+    },
+    SOCIAL_ACCOUNT_TYPE: {
+        NEED_NAME: "Name is required",
+    },
 });
 
 const socialAccountTypeSchema = new Schema({
@@ -51,7 +56,7 @@ class SocialAccountTypeModel extends Model {
      */
     static async createNew(rawData, updateIfExist = false) {
         try {
-            if (!rawData.socialAccountTypeName) throw new Error("Invalid inputs");
+            if (!rawData.socialAccountTypeName) throw new Error(ERROR_MESSAGES.GENERAL.INVALID_INPUTS);
             const isAlreadyExistData = await this.findOne({
                 socialAccountTypeName: rawData.socialAccountTypeName,
             });
@@ -64,7 +69,7 @@ class SocialAccountTypeModel extends Model {
             }
         } catch (error) {
             debug(error);
-            throw new Error("Cannot create a new social account type");
+            throw new Error(ERROR_MESSAGES.GENERAL.INSERT_ERROR);
         }
     }
 
@@ -75,13 +80,13 @@ class SocialAccountTypeModel extends Model {
      */
     static async getSocialAccountTypeByName(socialAccountTypeName) {
         try {
-            if (!socialAccountTypeName) throw new Error("Invalid Inputs");
+            if (!socialAccountTypeName) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT_TYPE.NEED_NAME);
             const socialAccountType = await this.findOne({ socialAccountTypeName });
             if (!socialAccountType) return null;
             return convertSocialAccountTypeDocumentToJSON(socialAccountType);
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate retrieving process");
+            throw new Error(ERROR_MESSAGES.GENERAL.READ_ERROR);
         }
     }
 
@@ -94,7 +99,7 @@ class SocialAccountTypeModel extends Model {
      */
     static async updateSocialAccountTypeByName(socialAccountTypeName, updatedRawData, shouldCreateNew = false) {
         try {
-            if (!socialAccountTypeName) throw new Error("Invalid inputs");
+            if (!socialAccountTypeName) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT_TYPE.NEED_NAME);
             const updatedSocialAccountTypeData = await this.findOneAndUpdate(
                 { socialAccountTypeName },
                 updatedRawData,
@@ -107,18 +112,23 @@ class SocialAccountTypeModel extends Model {
             return convertSocialAccountTypeDocumentToJSON(updatedSocialAccountTypeData);
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate updating process");
+            throw new Error(ERROR_MESSAGES.GENERAL.UPDATE_ERROR);
         }
     }
 
+    /**
+     * Delete a social account type
+     *
+     * @param {*} socialAccountTypeName name of the social account type to be deleted
+     */
     static async deleteSocialAccountTypeByName(socialAccountTypeName) {
         try {
-            if (!socialAccountTypeName) throw new Error("Invalid Inputs");
+            if (!socialAccountTypeName) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT_TYPE.NEED_NAME);
             const isDeleted = await this.findOneAndDelete({ socialAccountTypeName });
             return isDeleted ? true : false;
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate deleting process");
+            throw new Error(ERROR_MESSAGES.GENERAL.DELETE_ERROR);
         }
     }
 }
@@ -140,7 +150,7 @@ class SocialAccountModel extends Model {
      */
     static async createNew(rawData, updateIfExist = false) {
         try {
-            if (!rawData.username) throw new Error("Need username");
+            if (!rawData.username) throw new Error(ERROR_MESSAGES.GENERAL.INVALID_INPUTS);
             // check if data already exist
             const isAlreadyExistData = await this.findOne({ username: rawData.username });
             if (updateIfExist || !isAlreadyExistData) {
@@ -168,7 +178,7 @@ class SocialAccountModel extends Model {
             }
         } catch (error) {
             debug(error);
-            throw new Error("Could not create new social account");
+            throw new Error(ERROR_MESSAGES.GENERAL.INSERT_ERROR);
         }
     }
 
@@ -179,7 +189,7 @@ class SocialAccountModel extends Model {
      */
     static async getSocialAccountByUsername(username) {
         try {
-            if (!username) throw new Error("Need username");
+            if (!username) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT.NEED_USERNAME);
             const socialAccount = await this.findOne({ username });
             if (!socialAccount) return null;
             return convertSocialAccountDocumentToJSON(
@@ -192,7 +202,7 @@ class SocialAccountModel extends Model {
             );
         } catch (error) {
             debug(error);
-            throw new Error("Could not retrieving process");
+            throw new Error(ERROR_MESSAGES.GENERAL.READ_ERROR);
         }
     }
     /**
@@ -204,7 +214,7 @@ class SocialAccountModel extends Model {
      */
     static async updateSocialAccountByUsername(username, updatedSocialAccount, shouldCreateNew = false) {
         try {
-            if (!username) throw new Error("Need username");
+            if (!username) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT.NEED_USERNAME);
             const dataToUpdate = {
                 username: updatedSocialAccount.username ? updatedSocialAccount.username : username,
             };
@@ -220,7 +230,7 @@ class SocialAccountModel extends Model {
                 new: true,
                 upsert: shouldCreateNew,
             });
-            if (!socialAccount) throw new Error("Data is not existed");
+            if (!socialAccount) return null;
             return convertSocialAccountDocumentToJSON(
                 await socialAccount
                     .populate({
@@ -231,7 +241,7 @@ class SocialAccountModel extends Model {
             );
         } catch (error) {
             debug(error);
-            throw new Error("error message");
+            throw new Error(ERROR_MESSAGES.GENERAL.UPDATE_ERROR);
         }
     }
 
@@ -242,12 +252,12 @@ class SocialAccountModel extends Model {
      */
     static async deleteSocialAccountByUsername(username) {
         try {
-            if (!username) throw new Error("Invalid Inputs");
+            if (!username) throw new Error(SOCIAL_ACCOUNT_ERROR_MESSAGES.SOCIAL_ACCOUNT.NEED_USERNAME);
             const isDeleted = await this.findOneAndDelete({ username });
             return isDeleted ? true : false;
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate deleting process");
+            throw new Error(ERROR_MESSAGES.GENERAL.DELETE_ERROR);
         }
     }
 }

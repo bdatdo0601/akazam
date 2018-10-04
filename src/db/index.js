@@ -7,6 +7,19 @@ import mongoose from "mongoose";
 
 const debug = require("debug")("Akazam:DBMain");
 
+export const ERROR_MESSAGES = Object.freeze({
+    GENERAL: {
+        INVALID_INPUTS: "Invalid Inputs",
+        INSERT_ERROR: "Could not intiate writing process",
+        UPDATE_ERROR: "Could not initiate updating process",
+        READ_ERROR: "Could not initiate reading process",
+        DELETE_ERROR: "Could not initiate deleting process",
+    },
+    INITIALIZATION: {
+        CONNECTION_ESTABLISHMENT: "Unable to establish connection",
+    },
+});
+
 /**
  * Database Initialization function
  *
@@ -24,7 +37,7 @@ const initDB = async (uri, options) => {
         return mgoose;
     } catch (err) {
         debug(err);
-        throw new Error("Unable to establish connection");
+        throw new Error(ERROR_MESSAGES.INITIALIZATION.CONNECTION_ESTABLISHMENT);
     }
 };
 
