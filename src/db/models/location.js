@@ -92,7 +92,7 @@ class Location extends Model {
      * @param {*} updatedRawData updated information
      * @param {*} shouldCreateNew determine if an input is non-existed, should the data be created
      */
-    static async updateLocationByName(name, updatedRawData, shouldCreateNew = true) {
+    static async updateLocationByName(name, updatedRawData, shouldCreateNew = false) {
         try {
             if (!name) throw new Error("Invalid Inputs");
             const convertedAddress = convertAddress(updatedRawData.address);

@@ -6,7 +6,10 @@ import path from "path";
 
 const DATA_AMOUNT = 10;
 
-const schemas = [{ name: "location", schema: "__mock__/schema/location.json" }];
+const schemas = [
+    { name: "location", schema: "__mock__/schema/location.json" },
+    { name: "socialAccount", schema: "__mock__/schema/socialAccount.json" },
+];
 
 jsf.extend("faker", () => faker);
 
