@@ -41,6 +41,11 @@ const socialAccountSchema = new Schema({
     },
 });
 
+/**
+ * Convert a mongoose social account type document to json format
+ *
+ * @param {*} data document to be converted
+ */
 const convertSocialAccountTypeDocumentToJSON = data => ({
     _id: data._id,
     socialAccountTypeName: data.socialAccountTypeName,
@@ -134,6 +139,12 @@ class SocialAccountTypeModel extends Model {
 }
 
 export const SocialAccountType = mongoose.model(SocialAccountTypeModel, socialAccountTypeSchema, "SocialAccountType");
+
+/**
+ * Convert a mongoose social account document to json format
+ *
+ * @param {*} data document to be converted
+ */
 
 const convertSocialAccountDocumentToJSON = data => ({
     _id: data._id,

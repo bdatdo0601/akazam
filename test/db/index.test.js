@@ -1,6 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { expect } from "chai";
-import initDB from "../../src/db";
+import chai, { expect } from "chai";
+import initDB, { ERROR_MESSAGES } from "../../src/db";
+
+chai.use(require("chai-as-promised"));
 
 require("dotenv").config();
 
@@ -24,14 +26,10 @@ let mgoose = null;
 
 describe("Database General Functionality", () => {
     describe("Establishing connection with test database", () => {
-        it("should throw error if input is invalid", done => {
-            mgoose = initDB()
-                .then(() => {
-                    done(new Error("Invalid input should not create connection"));
-                })
-                .catch(() => {
-                    done();
-                });
+        it("should throw error if input is invalid", async () => {
+            await expect(initDB()).to.eventually.be.rejectedWith(
+                ERROR_MESSAGES.INITIALIZATION.CONNECTION_ESTABLISHMENT
+            );
         });
 
         it("should established a native mongoose connection object if input is valid", async () => {

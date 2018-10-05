@@ -4,9 +4,16 @@
  * hold a real world's location in a format that can be easily retrieve, search, etc
  */
 import mongoose, { Schema, Model } from "mongoose";
+import { ERROR_MESSAGES } from "../index";
 import addressParser from "parse-address";
 
 const debug = require("debug")("Akazam:Location");
+
+export const LOCATION_ERROR_MESSAGES = Object.freeze({
+    LOCATION: {
+        NEED_NAME: "Location name is required",
+    },
+});
 
 const EMPTY_ADDRESS = {
     address: "",
@@ -29,6 +36,18 @@ const locationSchema = new Schema({
     country: String,
     lat: Number,
     long: Number,
+});
+
+const convertLocationDocumentToJSON = data => ({
+    _id: data._id,
+    name: data.name,
+    address: data.address,
+    zipCode: data.zipCode,
+    state: data.state,
+    city: data.city,
+    country: data.country,
+    lat: data.lat,
+    long: data.long,
 });
 
 /**
@@ -58,16 +77,23 @@ class Location extends Model {
      *
      * @param {*} rawData data to be inserted
      */
-    static async createNewLocation(rawData) {
+    static async createNew(rawData, updateIfExist = false) {
         try {
-            const convertedAddress = convertAddress(rawData.address);
-            const data = convertedAddress ? { ...rawData, ...convertedAddress } : rawData;
-            const newLocation = new Location(data);
-            const newLocationDocument = await newLocation.save();
-            return newLocationDocument;
+            if (!rawData.name) throw new Error(LOCATION_ERROR_MESSAGES.LOCATION.NEED_NAME);
+            // check if data already exist
+            const isAlreadyExistData = await this.findOne({ name: rawData.name });
+            if (updateIfExist || !isAlreadyExistData) {
+                const convertedAddress = convertAddress(rawData.address);
+                const data = convertedAddress ? { ...rawData, ...convertedAddress } : rawData;
+                const newLocation = new Location(data);
+                const newLocationDocument = await newLocation.save();
+                return convertLocationDocumentToJSON(newLocationDocument);
+            } else {
+                return convertLocationDocumentToJSON(isAlreadyExistData);
+            }
         } catch (error) {
             debug(error);
-            throw new Error("cannot create new location");
+            throw new Error(ERROR_MESSAGES.GENERAL.INSERT_ERROR);
         }
     }
     /**
@@ -77,12 +103,13 @@ class Location extends Model {
      */
     static async getLocationFromName(name) {
         try {
-            if (!name) throw new Error("Invalid Inputs");
+            if (!name) throw new Error(LOCATION_ERROR_MESSAGES.LOCATION.NEED_NAME);
             const location = await this.findOne({ name });
-            return location;
+            if (!location) return null;
+            return convertLocationDocumentToJSON(location);
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate searching process");
+            throw new Error(ERROR_MESSAGES.GENERAL.READ_ERROR);
         }
     }
     /**
@@ -94,16 +121,17 @@ class Location extends Model {
      */
     static async updateLocationByName(name, updatedRawData, shouldCreateNew = false) {
         try {
-            if (!name) throw new Error("Invalid Inputs");
+            if (!name) throw new Error(LOCATION_ERROR_MESSAGES.LOCATION.NEED_NAME);
             const convertedAddress = convertAddress(updatedRawData.address);
             const data = convertedAddress
                 ? { ...updatedRawData, ...EMPTY_ADDRESS, ...convertedAddress }
                 : updatedRawData;
-            const location = await this.updateOne({ name }, data, { upsert: shouldCreateNew });
-            return location;
+            const location = await this.findOneAndUpdate({ name }, data, { new: true, upsert: shouldCreateNew });
+            if (!location) return null;
+            return convertLocationDocumentToJSON(location);
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate searching process");
+            throw new Error(ERROR_MESSAGES.GENERAL.UPDATE_ERROR);
         }
     }
     /**
@@ -113,12 +141,12 @@ class Location extends Model {
      */
     static async deleteLocationByName(name) {
         try {
-            if (!name) throw new Error("Invalid Inputs");
-            await this.deleteOne({ name });
-            return true;
+            if (!name) throw new Error(LOCATION_ERROR_MESSAGES.LOCATION.NEED_NAME);
+            const deletedLocation = await this.findOneAndDelete({ name });
+            return deletedLocation ? true : false;
         } catch (error) {
             debug(error);
-            throw new Error("Could not initiate searching process");
+            throw new Error(ERROR_MESSAGES.GENERAL.DELETE_ERROR);
         }
     }
 }
