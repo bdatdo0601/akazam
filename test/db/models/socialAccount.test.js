@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import initDB, { ERROR_MESSAGES } from "../../../src/db";
 import _ from "lodash";
-import SocialAccount, { SocialAccountType, SOCIAL_ACCOUNT_ERROR_MESSAGES } from "../../../src/db/models/socialAccount";
+import SocialAccount, { SocialAccountType } from "../../../src/db/models/socialAccount";
 import mockSocialAccountData from "../../../__mock__/data/socialAccount.json";
 
 chai.use(require("chai-like"));
@@ -49,7 +49,10 @@ describe("Social Account Model Test", () => {
     ];
 
     const nonExistingSocialAccountTypeToBeInsertedData = [
-        { input: { socialAccountTypeName: "voodoo", link: "http://voodoo.com" } },
+        {
+            input: { socialAccountTypeName: "voodoo", link: "http://voodoo.com" },
+            expected: { socialAccountTypeName: "voodoo", link: "http://voodoo.com" },
+        },
     ];
 
     const nonExistingSocialAccountTypeToNotBeInsertedData = [
@@ -184,7 +187,7 @@ describe("Social Account Model Test", () => {
                                     testCase.input,
                                     true
                                 );
-                                expect(newSocialAccountType).to.be.like(testCase.input);
+                                expect(newSocialAccountType).to.be.like(testCase.expected);
                             });
                         });
                     });

@@ -1,7 +1,10 @@
-import { expect } from "chai";
-import initDB from "../../../src/db";
+import chai, { expect } from "chai";
+import initDB, { ERROR_MESSAGES } from "../../../src/db";
 import Location from "../../../src/db/models/location";
 import mockLocationData from "../../../__mock__/data/location.json";
+
+chai.use(require("chai-like"));
+chai.use(require("chai-as-promised"));
 
 require("dotenv").config();
 
@@ -22,15 +25,14 @@ describe("Location Model Test", () => {
         mgoose = await initDB(DB_TEST_URI, MONGOOSE_TEST_OPTS);
     });
 
-    const validMockData = mockLocationData.location.map((item, index) => ({
+    const validMockLocationData = mockLocationData.location.map((item, index) => ({
         name: `mock data ${index}`,
         input: item,
         expected: item,
     }));
 
-    const validTestData = [
+    const validLocationData = [
         {
-            name: "valid data 1",
             input: {
                 name: "Foo",
                 address: "Bar",
@@ -48,7 +50,6 @@ describe("Location Model Test", () => {
             },
         },
         {
-            name: "valid data 2",
             input: {
                 name: "Foo's Home",
                 address: "1100 Throndike street",
@@ -67,7 +68,6 @@ describe("Location Model Test", () => {
             },
         },
         {
-            name: "valid data 3",
             input: {
                 name: "Bar's Home",
                 address: "124 Throndike street, Cambridge MA 02141",
@@ -92,7 +92,6 @@ describe("Location Model Test", () => {
             },
         },
         {
-            name: "valid data 4",
             input: {
                 name: "Baz's Home",
                 address: "124 North Throndike street, Cambridge MA 02141",
@@ -111,14 +110,27 @@ describe("Location Model Test", () => {
             expectedAfterUpdate: {
                 name: "Baz's Home",
                 address: "124 South Throndike street",
-                city: "",
-                state: "",
-                zipCode: "",
             },
         },
     ];
 
-    const nonExistingInputs = [
+    const nonExistingLocationToBeInsertedData = [
+        {
+            input: {
+                name: "Goo's house",
+                address: "187 Broadway street, Somerville MA 02145",
+            },
+            expected: {
+                name: "Goo's house",
+                address: "187 Broadway St",
+                city: "Somerville",
+                state: "MA",
+                zipCode: "02145",
+            },
+        },
+    ];
+
+    const nonExistingLocationToNotBeInsertedData = [
         {
             name: "Non Existing Input 1",
             input: {
@@ -131,281 +143,195 @@ describe("Location Model Test", () => {
                 name: "fooosff",
             },
         },
+        {
+            name: "Non Existing Data 1",
+            input: {
+                name: "yoo",
+                address: "yaz",
+            },
+        },
     ];
 
-    const invalidInputs = [
+    const invalidLocationData = [
         {
-            name: "Invalid Input 1",
             input: {
                 name: undefined,
             },
         },
         {
-            name: "Invalid Input 2",
             input: {
                 name: null,
             },
         },
         {
-            name: "Invalid Input 3",
             input: {
                 name: false,
             },
+        },
+        {
+            input: {
+                address: "Foo Bar",
+            },
+        },
+        {
+            input: {
+                foo: "bar",
+                address: "Foo Bar",
+            },
+        },
+        {
+            input: {},
         },
     ];
 
     describe("Creating New Data", () => {
         describe("Insert to database with mock data", () => {
-            validMockData.forEach(testCase => {
+            validMockLocationData.forEach(testCase => {
                 it(`should insert to database with ${testCase.name}`, async () => {
-                    const newLocation = await Location.createNewLocation(testCase.input);
-                    expect(newLocation).to.not.be.null;
-                    Object.keys(testCase.expected).forEach(key => {
-                        expect(newLocation[key]).to.equal(testCase.expected[key]);
-                    });
+                    const newLocation = await Location.createNew(testCase.input);
+                    expect(newLocation).to.be.like(testCase.expected);
                 });
             });
         });
         describe("Insert to database with valid data", () => {
-            validTestData.forEach(testCase => {
-                it(`should insert to database with ${testCase.name}`, async () => {
-                    try {
-                        const newLocation = await Location.createNewLocation(testCase.input);
-                        expect(newLocation).to.not.be.null;
-                        Object.keys(testCase.expected).forEach(key => {
-                            expect(newLocation[key]).to.equal(testCase.expected[key]);
+            describe("Insert with non-existing data", () => {
+                validLocationData.forEach((testCase, index) => {
+                    it(`should insert to database with valid data ${index}`, async () => {
+                        const newLocation = await Location.createNew(testCase.input);
+                        expect(newLocation).to.be.like(testCase.expected);
+                    });
+                });
+            });
+            describe("Insert with existing data", () => {
+                describe("Not allowing update existing data", () => {
+                    validLocationData.forEach((testCase, index) => {
+                        it(`should return existed data with existing data ${index}`, async () => {
+                            const newLocation = await Location.createNew(testCase.input, false);
+                            expect(newLocation).to.be.like(testCase.expected);
                         });
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+                    });
+                });
+                describe("Allowing update existing data", () => {
+                    validLocationData.forEach((testCase, index) => {
+                        it(`should return updated data with existing data ${index}`, async () => {
+                            const newLocation = await Location.createNew(testCase.input, true);
+                            expect(newLocation).to.be.like(testCase.expected);
+                        });
+                    });
                 });
             });
         });
         describe("Insert to database with invalid data", () => {
-            const invalidTestData = [
-                {
-                    name: "Invalid Test Case 1",
-                    input: {
-                        address: "Foo Bar",
-                    },
-                },
-                {
-                    name: "Invalid Test Case 1",
-                    input: {
-                        name: "Yo",
-                        foo: "bar",
-                        address: "Foo Bar",
-                    },
-                },
-                {
-                    name: "Invalid Test Case 2",
-                    input: {},
-                },
-                {
-                    name: "Invalid Test Case 3", // Duplicated with valid test case
-                    input: {
-                        name: "Dat's Home",
-                        address: "124 North Throndike street, Cambridge MA 02141",
-                    },
-                },
-            ];
-            invalidTestData.forEach(testCase => {
-                it(`Should throw error with ${testCase.name}`, async () => {
-                    try {
-                        await Location.createNewLocation(testCase.input);
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            invalidLocationData.forEach((testCase, index) => {
+                it(`Should throw error with invalid data ${index}`, async () => {
+                    await expect(Location.createNew(testCase.input)).to.eventually.be.rejectedWith(
+                        ERROR_MESSAGES.GENERAL.INSERT_ERROR
+                    );
                 });
             });
         });
     });
     describe("Reading Stored Data", () => {
         describe("Retriving Existing Data", () => {
-            validMockData.forEach(testCase => {
+            validMockLocationData.forEach(testCase => {
                 it(`should return data with ${testCase.name}`, async () => {
-                    try {
-                        const location = await Location.getLocationFromName(testCase.input.name);
-                        expect(location).to.not.be.null;
-                        Object.keys(testCase.expected).forEach(key => {
-                            expect(location[key]).to.equal(testCase.expected[key]);
-                        });
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+                    const location = await Location.getLocationFromName(testCase.input.name);
+                    expect(location).to.be.like(testCase.expected);
                 });
             });
-            validTestData.forEach(testCase => {
-                it(`should return data with ${testCase.name}`, async () => {
-                    try {
-                        const location = await Location.getLocationFromName(testCase.input.name);
-                        expect(location).to.not.be.null;
-                        Object.keys(testCase.expected).forEach(key => {
-                            expect(location[key]).to.equal(testCase.expected[key]);
-                        });
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+            validLocationData.forEach((testCase, index) => {
+                it(`should return data with valid data ${index}`, async () => {
+                    const location = await Location.getLocationFromName(testCase.input.name);
+                    expect(location).to.be.like(testCase.expected);
                 });
             });
         });
         describe("Retriving Non-existing data", () => {
-            nonExistingInputs.forEach(testCase => {
-                it(`should return null with ${testCase.name}`, async () => {
-                    try {
+            nonExistingLocationToBeInsertedData
+                .concat(nonExistingLocationToNotBeInsertedData)
+                .forEach((testCase, index) => {
+                    it(`should return null with non existing data ${index}`, async () => {
                         const location = await Location.getLocationFromName(testCase.input.name);
                         expect(location).to.be.null;
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+                    });
                 });
-            });
         });
         describe("Retriving with invalid inputs", () => {
-            invalidInputs.forEach(testCase => {
-                it(`should throw error with ${testCase.name}`, async () => {
-                    try {
-                        await Location.getLocationFromName(testCase.input.name);
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            invalidLocationData.forEach((testCase, index) => {
+                it(`should throw error with invalid data ${index}`, async () => {
+                    await expect(Location.getLocationFromName(testCase.input.name)).to.eventually.be.rejectedWith(
+                        ERROR_MESSAGES.GENERAL.READ_ERROR
+                    );
                 });
             });
         });
     });
     describe("Updating Data", () => {
         describe("Update Existing Data", () => {
-            validTestData.forEach(testCase => {
-                it(`should update the data in database with ${testCase.name}`, async () => {
-                    try {
-                        const location = await Location.updateLocationByName(testCase.input.name, testCase.updateValue);
-                        expect(location).to.not.be.null;
-                        Object.keys(testCase.expectedAfterUpdate).forEach(key => {
-                            expect(location[key]).to.equal(testCase.expectedAfterUpdate[key]);
-                        });
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            validLocationData.forEach((testCase, index) => {
+                it(`should update the data in database with valid data ${index}`, async () => {
+                    const location = await Location.updateLocationByName(testCase.input.name, testCase.updateValue);
+                    expect(location).to.be.like(testCase.expectedAfterUpdate);
                 });
             });
         });
         describe("Update Non-existing Data", () => {
             describe("Insert data if not existed", () => {
-                const insertedData = [
-                    {
-                        name: "Inserting Data Using Edit 1",
-                        input: {
-                            name: "Goo's house",
-                            address: "187 Broadway street, Somerville MA 02145",
-                        },
-                        expected: {
-                            name: "Goo's house",
-                            address: "187 Broadway street",
-                            city: "Somerville",
-                            state: "MA",
-                            zipCode: "02145",
-                        },
-                    },
-                ];
-                insertedData.forEach(testCase => {
-                    it(`should return inserted data from ${testCase.name}`, async () => {
-                        try {
-                            const location = await Location.updateLocationByName(
-                                testCase.input.name,
-                                testCase.input,
-                                true
-                            );
-                            expect(location).to.not.be.null;
-                            Object.keys(testCase.expected).forEach(key => {
-                                expect(location[key]).to.equal(testCase.expected[key]);
-                            });
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                nonExistingLocationToBeInsertedData.forEach((testCase, index) => {
+                    it(`should return inserted data from non-existing data ${index}`, async () => {
+                        const location = await Location.updateLocationByName(testCase.input.name, testCase.input, true);
+                        expect(location).to.be.like(testCase.expected);
                     });
                 });
             });
             describe("Not Insert data if not existed", () => {
-                const nonExistedData = [
-                    {
-                        name: "Non Existing Data 1",
-                        input: {
-                            name: "yoo",
-                            address: "yaz",
-                        },
-                    },
-                ];
-                nonExistedData.forEach(testCase => {
-                    it(`should return null with ${testCase.name}`, async () => {
-                        try {
-                            const location = await Location.updateLocationByName(
-                                testCase.input.name,
-                                testCase.input,
-                                false
-                            );
-                            expect(location).to.be.null;
-                        } catch (error) {
-                            expect(error).to.not.be.null;
-                        }
+                nonExistingLocationToNotBeInsertedData.forEach((testCase, index) => {
+                    it(`should return null with non-existing data ${index}`, async () => {
+                        const location = await Location.updateLocationByName(testCase.input.name, testCase.input);
+                        expect(location).to.be.null;
                     });
                 });
             });
         });
         describe("Update with invalid inputs", () => {
-            invalidInputs.forEach(testCase => {
-                it(`should throw error with ${testCase.name}`, async () => {
-                    try {
-                        await Location.updateLocationByName(testCase.input.name);
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            invalidLocationData.forEach((testCase, index) => {
+                it(`should throw error with invalid data ${index}`, async () => {
+                    await expect(Location.updateLocationByName(testCase.input.name)).to.eventually.be.rejectedWith(
+                        ERROR_MESSAGES.GENERAL.UPDATE_ERROR
+                    );
                 });
             });
         });
     });
     describe("Deleting Data", () => {
         describe("Delete existing data", () => {
-            validMockData.forEach(testCase => {
+            validMockLocationData.forEach(testCase => {
                 it(`should return true with ${testCase.name}`, async () => {
-                    try {
-                        const isDeleted = await Location.deleteLocationByName(testCase.input.name);
-                        expect(isDeleted).to.be.true;
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+                    const isDeleted = await Location.deleteLocationByName(testCase.input.name);
+                    expect(isDeleted).to.be.true;
                 });
             });
-            validTestData.forEach(testCase => {
-                it(`should return true with ${testCase.name}`, async () => {
-                    try {
-                        const isDeleted = await Location.deleteLocationByName(testCase.input.name);
-                        expect(isDeleted).to.be.true;
-                    } catch (error) {
-                        expect(error).to.be.null;
-                    }
+            validLocationData.forEach((testCase, index) => {
+                it(`should return true with valid data ${index}`, async () => {
+                    const isDeleted = await Location.deleteLocationByName(testCase.input.name);
+                    expect(isDeleted).to.be.true;
                 });
             });
         });
         describe("Delete non existing data", () => {
-            nonExistingInputs.forEach(testCase => {
-                it(`should throw error with ${testCase.name}`, async () => {
-                    try {
-                        await Location.deleteLocationByName(testCase.input.name);
-                        expect(location).to.be.null;
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            nonExistingLocationToNotBeInsertedData.forEach((testCase, index) => {
+                it(`should return false with non-existing data ${index}`, async () => {
+                    const isDeleted = await Location.deleteLocationByName(testCase.input.name);
+                    expect(isDeleted).to.be.false;
                 });
             });
         });
         describe("Delete data with invalid input", () => {
-            invalidInputs.forEach(testCase => {
-                it(`should throw error with ${testCase.name}`, async () => {
-                    try {
-                        await Location.deleteLocationByName(testCase.input.name);
-                    } catch (error) {
-                        expect(error).to.not.be.null;
-                    }
+            invalidLocationData.forEach((testCase, index) => {
+                it(`should throw error with invalid data ${index}`, async () => {
+                    await expect(Location.deleteLocationByName(testCase.input.name)).to.eventually.be.rejectedWith(
+                        ERROR_MESSAGES.GENERAL.DELETE_ERROR
+                    );
                 });
             });
         });
